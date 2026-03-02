@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS document_db.document
 CREATE TABLE IF NOT EXISTS document_db.history
 (
     id   BIGSERIAL PRIMARY KEY,
-    cvUuid UUID NOT NULL,
+    uuid UUID NOT NULL,
     author_chang VARCHAR(64) NOT NULL,
     status VARCHAR(32) NOT NULL,
     command VARCHAR(32) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS document_db.history
 CREATE TABLE IF NOT EXISTS document_db.approval_register
 (
     id   BIGSERIAL PRIMARY KEY,
-    cvUuid UUID NOT NULL
+    uuid UUID NOT NULL
 );
 --rollback DROP TABLE IF EXISTS document_db.approval_register;
 
