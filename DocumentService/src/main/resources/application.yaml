@@ -1,0 +1,17 @@
+server:
+  port: 8595
+spring:
+  application:
+    name: DocumentService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/document_db
+    name: document_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        default_schema: document_db
+        show_sql: true
+        format_sql: true
