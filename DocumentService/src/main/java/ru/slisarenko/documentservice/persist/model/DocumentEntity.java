@@ -25,9 +25,9 @@ import ru.slisarenko.documentservice.enums.Status;
 public class DocumentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(name = "uuid", unique = true, nullable = false)
+    @Column(name = "uuid_doc", unique = true, nullable = false)
     private UUID uuid;
 
     @Column(name = "name", nullable = false)

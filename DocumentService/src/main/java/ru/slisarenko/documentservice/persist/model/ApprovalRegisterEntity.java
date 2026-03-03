@@ -21,8 +21,8 @@ import lombok.NoArgsConstructor;
 public class ApprovalRegisterEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(name = "uuid", unique = true, nullable = false)
+    @Column(name = "uuid_doc", unique = true, nullable = false)
     private UUID uuid;
 }
