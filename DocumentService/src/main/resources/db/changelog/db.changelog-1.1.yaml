@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: aslisarenko
+      changes:
+        - addColumn:
+            schemaName: document_db
+            tableName: document
+            columns:
+              - column:
+                  name: uuid_doc
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+  - changeSet:
+      id: 2
+      author: aslisarenko
+      changes:
+        - addColumn:
+            schemaName: document_db
+            tableName: document
+            columns:
+              - column:
+                  name: create_update
+                  type: TIMESTAMP
+                  defaultValueComputed: now()

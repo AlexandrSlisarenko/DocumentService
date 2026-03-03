@@ -13,7 +13,8 @@ public class DocumentService {
 
     public DocumentEntity createNewDocument(DocumentFieldDTO documentFields){
         var document = createDocumentEntity(documentFields);
-        return this.documentRepository.save(document);
+        var documentId = documentRepository.save(document).getId();
+        return this.documentRepository.findById(documentId).orElseThrow();
     }
 
     private DocumentEntity createDocumentEntity(DocumentFieldDTO fields) {

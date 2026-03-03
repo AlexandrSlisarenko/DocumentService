@@ -14,11 +14,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
 
 @Entity
 @Table(schema = "document_db", name = "history")
+@DynamicInsert
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

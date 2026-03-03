@@ -12,11 +12,10 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS document_db.document
 (
     id   BIGSERIAL PRIMARY KEY,
-    uuid_doc UUID NOT NULL DEFAULT gen_random_uuid(),
     name VARCHAR(64) NOT NULL,
     author VARCHAR(64) NOT NULL,
-    status VARCHAR(32) NOT NULL DEFAULT 'DRAFT',
-    create_update TIMESTAMP NOT NULL DEFAULT public.default_val
+    status VARCHAR(32) DEFAULT 'DRAFT'
+
 );
 --rollback DROP TABLE IF EXISTS document_db.document;
 

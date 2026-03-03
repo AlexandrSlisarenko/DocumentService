@@ -3,25 +3,24 @@ package ru.slisarenko.documentservice.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import ru.slisarenko.documentservice.config.MyTestContainer;
 import ru.slisarenko.documentservice.enums.Status;
-import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.repository.DocumentRepository;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 import ru.slisarenko.documentservice.uscase.service.DocumentService;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Testcontainers
+@Import(MyTestContainer.class)
 class DocumentServiceTest {
-    @Mock
-    private DocumentRepository documentRepository;
-    private DocumentEntity documentEntity;
-    private DocumentService documentService;
-    @InjectMocks
-    private DocumentFieldDTO documentFields;
 
+    @Autowired
+    private DocumentService documentService;
+    private DocumentFieldDTO documentFields;
 
     DocumentServiceTest() {
         this.documentFields = DocumentFieldDTO.builder()
@@ -30,7 +29,6 @@ class DocumentServiceTest {
                 .build();
 
     }
-
 
     @Test
     void save_NotNullDocument_ReturnSavingDocument() {

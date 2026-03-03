@@ -14,10 +14,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import ru.slisarenko.documentservice.enums.Status;
 
 @Entity
 @Table(schema = "document_db", name = "document")
+@DynamicInsert
 @Builder
 @Data
 @NoArgsConstructor
@@ -27,7 +29,7 @@ public class DocumentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uuid_doc", unique = true, nullable = false)
+    @Column(name = "uuid_doc")
     private UUID uuid;
 
     @Column(name = "name", nullable = false)
@@ -36,10 +38,10 @@ public class DocumentEntity {
     @Column(name = "author", nullable = false)
     private String author;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(name = "create_update", nullable = false)
+    @Column(name = "create_update")
     private LocalDateTime changeTime;
 }
