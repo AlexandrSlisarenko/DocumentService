@@ -2,14 +2,14 @@ package ru.slisarenko.documentservice.uscase.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-import ru.slisarenko.documentservice.enums.Command;
-import ru.slisarenko.documentservice.enums.Status;
+import lombok.Builder;
 
-public record HistoryFieldDTO(long id,
+@Builder
+public record HistoryFieldDTO(Long id,
                               UUID uuid,
                               String authorChang,
                               String comment,
-                              Command command,
-                              Status status,
+                              String command,
+                              String status,
                               LocalDateTime changeTime) {
 }

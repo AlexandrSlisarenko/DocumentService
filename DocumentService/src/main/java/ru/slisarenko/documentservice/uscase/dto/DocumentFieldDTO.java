@@ -10,6 +10,6 @@ public record DocumentFieldDTO(long id,
                                UUID uuid,
                                String name,
                                String author,
-                               Status status,
+                               String status,
                                LocalDateTime changeTime) {
 }

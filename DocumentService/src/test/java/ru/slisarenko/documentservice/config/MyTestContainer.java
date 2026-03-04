@@ -21,9 +21,9 @@ public class MyTestContainer {
                 .withDatabaseName("document_db")
                 .withUsername("postgres")
                 .withPassword("postgres")
-                .withCommand("postgres",
+                /*.withCommand("postgres",
                         "-c", "log_statement=INFO",
-                        "-c", "log_min_duration_statement=0")
+                        "-c", "log_min_duration_statement=0")*/
                 .withLogConsumer(new Slf4jLogConsumer(log).withPrefix("POSTGRES"));
     }
 
