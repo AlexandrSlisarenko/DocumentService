@@ -1,6 +1,5 @@
 --liquibase formatted sql
 
-
 --changeset aslisarenko:1
 CREATE SCHEMA IF NOT EXISTS document_db;
 --rollback DROP SCHEMA IF EXISTS document_db;
@@ -36,7 +35,7 @@ CREATE TABLE IF NOT EXISTS document_db.history
 CREATE TABLE IF NOT EXISTS document_db.approval_register
 (
     id   BIGSERIAL PRIMARY KEY,
-    uuid_doc UUID NOT NULL
+    uuid_doc UUID NOT NULL UNIQUE
 );
 --rollback DROP TABLE IF EXISTS document_db.approval_register;
 

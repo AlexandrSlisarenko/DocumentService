@@ -9,7 +9,7 @@ public final class CheckField {
     private CheckField() {}
 
     public static boolean checkEmptyAndLength(String field){
-        return !field.isEmpty() && field.length() < 64;
+        return field.isEmpty() || field.length() > 64;
     }
 
     public static boolean checkUUID(String strUuid){

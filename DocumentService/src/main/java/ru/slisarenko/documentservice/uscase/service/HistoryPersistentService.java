@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.persist.repository.HistoryRepository;
 import ru.slisarenko.documentservice.uscase.dto.HistoryFieldDTO;
@@ -26,6 +27,20 @@ public class HistoryPersistentService {
         } catch (Exception e) {
             throw new ErrorSavingDataException(e.getMessage());
         }
+    }
+    public HistoryEntity saveHistoryDocument(DocumentEntity document, String userName, Command command, String comment){
+        var historyDTO = createHistoryField(document, userName, command, comment);
+        return saveHistoryDocument(historyDTO);
+    }
+    private HistoryFieldDTO createHistoryField(DocumentEntity document, String userName, Command command, String comment) {
+        return HistoryFieldDTO.builder()
+                .comment(comment)
+                .uuid(document.getUuid())
+                .status(document.getStatus().toString())
+                .command(command.toString())
+                .authorChang(userName)
+                .changeTime(document.getChangeTime())
+                .build();
     }
 
     private HistoryEntity createHistoryEntity(HistoryFieldDTO historyFieldDTO){
