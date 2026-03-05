@@ -8,6 +8,7 @@ import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
+import ru.slisarenko.documentservice.uscase.dto.DocumentWithHistoryDTO;
 
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATER;
 
@@ -31,8 +32,8 @@ public class DocService {
         return this.documentPersistentService.getDocumentByUUID(uuid);
     }
 
-    public HistoryEntity submittedDocument(DocumentEntity document, String userName, String comment) {
-        document = this.documentPersistentService.updateDocument(document.getUuid(), Status.SUBMITTED);
+    public HistoryEntity submittedDocument(UUID documentUuid, String userName, String comment) {
+        var document = this.documentPersistentService.updateDocument(documentUuid, Status.SUBMITTED);
         return this.historyPersistentService.saveHistoryDocument(document, userName, Command.Update, comment);
     }
 
@@ -45,5 +46,14 @@ public class DocService {
             return HistoryEntity.builder().build();
         }
 
+    }
+
+    public DocumentWithHistoryDTO getDocumentWithHistory(UUID uuidDoc) {
+        var document = this.documentPersistentService.getDocumentByUUID(uuidDoc);
+        var history = this.historyPersistentService.getAllHistoryByUuid(uuidDoc);
+        return DocumentWithHistoryDTO.builder()
+                .document(document)
+                .history(history)
+                .build();
     }
 }

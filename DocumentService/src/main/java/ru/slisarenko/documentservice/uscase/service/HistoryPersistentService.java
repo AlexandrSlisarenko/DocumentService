@@ -1,5 +1,7 @@
 package ru.slisarenko.documentservice.uscase.service;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Command;
@@ -62,4 +64,7 @@ public class HistoryPersistentService {
     }
 
 
+    public List<HistoryEntity> getAllHistoryByUuid(UUID uuidDoc) {
+        return this.historyRepository.findAllByUuidOrderByChangeTimeAsc(uuidDoc);
+    }
 }
