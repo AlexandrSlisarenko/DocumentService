@@ -3,6 +3,11 @@ package ru.slisarenko.documentservice.uscase.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +21,7 @@ import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFUING;
@@ -26,6 +32,7 @@ import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFUIN
 class DocServiceTest {
     @Autowired
     private DocService documentService;
+    private List<UUID> uuids = new ArrayList<>();
 
     @Test
     void createDocument_happyPath_ReturnHistory() {
@@ -72,7 +79,7 @@ class DocServiceTest {
 
     @Test
     void getDocumentWithHistory_ByUUID_DocumentWithHistory(){
-        var uuidDoc = createData();
+        var uuidDoc = generateDocumentData();
         var documentWithHistory = this.documentService.getDocumentWithHistory(uuidDoc);
         assertEquals(uuidDoc, documentWithHistory.document().getUuid());
         assertEquals(3, documentWithHistory.history().size());
@@ -80,16 +87,40 @@ class DocServiceTest {
 
     @Test
     void getFiveDocumentWithHistory_byListUUID_ReturnListDocumentWithHistory(){
-        List<UUID> uuids = new ArrayList<>();
-        while (uuids.size() < 5) {
-            uuids.add(createData());
+        List<UUID> resultList = generateDocumentsTestData(50);
+        int pages = 5, pageSize = 5;
+        String sort = "changeTime";
+        String ascDesc = "DESC";
+        System.out.println(resultList.size());
+        var result = this.documentService.getDocuments(resultList, pages, pageSize, sort, ascDesc);
+        assertNotNull(result);
+    }
+
+    private @NotNull List<UUID> generateDocumentsTestData(int coundDoc) {
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        List<Future<List<UUID>>> futures = new ArrayList<>();
+
+        for (int i = 0; i < coundDoc; i++) {
+            futures.add(executorService.submit(() -> {
+                List<UUID> partial = new ArrayList<>();
+                partial.add(generateDocumentData());
+                return partial;
+            }));
         }
-
-
+        executorService.close();
+        List<UUID> resultList = new ArrayList<>();
+        for (Future<List<UUID>> future : futures) {
+            try {
+                resultList.addAll(future.get()); // get() блокируется до завершения задачи
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return resultList;
     }
 
 
-    private UUID createData(){
+    private UUID generateDocumentData(){
         var historyDRAFT  = getHistoryNewDocument();
         var document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
         var historySUBMITTED = this.documentService.submittedDocument(document.getUuid(), USER_TESTER, "документ проверен");
@@ -97,5 +128,4 @@ class DocServiceTest {
         var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
         return historyAPPROVED.getUuid();
     }
-
 }

@@ -1,7 +1,9 @@
 package ru.slisarenko.documentservice.uscase.service;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
@@ -55,5 +57,9 @@ public class DocService {
                 .document(document)
                 .history(history)
                 .build();
+    }
+
+    public Page<DocumentEntity> getDocuments(List<UUID> uuids, int page, int size, String sort, String ascDesc) {
+        return this.documentPersistentService.getDocuments(uuids, page, size, sort, ascDesc);
     }
 }

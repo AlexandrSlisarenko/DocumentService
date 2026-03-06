@@ -1,8 +1,13 @@
 package ru.slisarenko.documentservice.uscase.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
@@ -54,5 +59,10 @@ public class DocumentPersistentService {
         documentFromDB.setChangeTime(LocalDateTime.now());
         var documentId = documentRepository.save(documentFromDB).getId();
         return this.documentRepository.findById(documentId).orElseThrow();
+    }
+
+    public Page<DocumentEntity> getDocuments(List<UUID> uuids, int page, int size, String sort, String ascDesc) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(ascDesc), sort));
+        return this.documentRepository.findDocumentEntitiesByIds(uuids,pageable);
     }
 }
