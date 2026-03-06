@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: createDocumentUtils
+folderForDocument: D:\Projects\DocumentService\DocumentService\src\main\createDocumentUtils\src\main\resources\DocumentDirectory
+countDoc: 10
