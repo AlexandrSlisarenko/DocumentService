@@ -30,6 +30,7 @@ public class DocService {
     }
 
 
+
     public DocumentEntity getDocumentByUUID(UUID uuid) {
         return this.documentPersistentService.getDocumentByUUID(uuid);
     }
@@ -61,5 +62,12 @@ public class DocService {
 
     public Page<DocumentEntity> getDocuments(List<UUID> uuids, int page, int size, String sort, String ascDesc) {
         return this.documentPersistentService.getDocuments(uuids, page, size, sort, ascDesc);
+    }
+
+    public DocumentFieldDTO createDocumentFieldDTO(String name, String author) {
+        return DocumentFieldDTO.builder()
+                .author(author)
+                .name(name)
+                .build();
     }
 }
