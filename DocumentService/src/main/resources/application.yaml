@@ -15,4 +15,5 @@ spring:
         default_schema: document_db
         show_sql: true
         format_sql: true
-folderForDocument: D:\Projects\DocumentService\DocumentService\DocumentDirectory
+folderForDocument: D:/Projects/DocumentService/DocumentService/DocumentDirectory/
+folderForDocumentResult: D:/Projects/DocumentService/DocumentService/DocumentDirectory/result/result.txt

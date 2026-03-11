@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.model.DocumentDataEntity;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
@@ -22,6 +23,7 @@ public class DocService {
     private final DocumentPersistentService documentPersistentService;
     private final HistoryPersistentService historyPersistentService;
     private final ApprovalRegisterService approvalRegisterService;
+    private final DocumentDataService documentDataService;
 
 
     public HistoryEntity createDocument(DocumentFieldDTO documentFieldDTO, String comment) {
@@ -69,5 +71,9 @@ public class DocService {
                 .author(author)
                 .name(name)
                 .build();
+    }
+
+    public DocumentDataEntity saveDocumentData(UUID id,  String text) {
+        return this.documentDataService.save(id, text);
     }
 }

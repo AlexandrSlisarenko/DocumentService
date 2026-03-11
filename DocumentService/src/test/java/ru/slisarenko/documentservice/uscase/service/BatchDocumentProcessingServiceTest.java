@@ -9,30 +9,32 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.slisarenko.documentservice.config.BatchConfig;
 import ru.slisarenko.documentservice.config.MyTestContainer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
 @Testcontainers
 @Import({MyTestContainer.class, BatchConfig.class})
 class BatchDocumentProcessingServiceTest {
-    public static final String TEST_PATH = "D:\\Projects\\DocumentService\\DocumentService\\src\\main" +
-                                           "\\createDocumentUtils\\src\\main\\resources\\DocumentDirectory";
-
 
     @Autowired
     private BatchDocumentProcessingService batchDocumentProcessingService;
+
 
     @Autowired
     private Job importUserJob;
 
     @Test
     void addBatchDocument() {
-        var countProcessingDocument = this.batchDocumentProcessingService.addBatchDocument(TEST_PATH);
+        var countProcessingDocument = this.batchDocumentProcessingService.addBatchDocument();
         assertEquals(5, countProcessingDocument);
     }
 
     @Test
     void BatchDocumentTest() {
-        batchDocumentProcessingService.addBatchDocument(TEST_PATH);
+        var status = batchDocumentProcessingService.addBatchDocument();
+        assertFalse(status.isUnsuccessful());
     }
+
+
 }

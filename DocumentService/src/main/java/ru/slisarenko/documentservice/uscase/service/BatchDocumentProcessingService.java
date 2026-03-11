@@ -1,6 +1,7 @@
 package ru.slisarenko.documentservice.uscase.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
 import org.springframework.batch.core.job.parameters.JobParameters;
@@ -17,17 +18,17 @@ public class BatchDocumentProcessingService {
     private JobOperator jobOperator;
     private Job job;
 
-    public boolean addBatchDocument(String path) {
+    public BatchStatus addBatchDocument() {
         JobParameters params = new JobParametersBuilder()
                 .addString("JobID", String.valueOf(System.currentTimeMillis()))
-                .addString("PathLoadDocument ", path)
                 .toJobParameters();
         try {
-            jobOperator.start(job, params);
+            var resJob = jobOperator.start(job, params);
+            return resJob.getStatus();
         } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException |
                  InvalidJobParametersException | JobRestartException e) {
             throw new RuntimeException(e);
         }
-        return true;
+
     }
 }
