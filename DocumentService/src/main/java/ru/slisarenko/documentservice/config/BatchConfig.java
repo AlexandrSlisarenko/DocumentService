@@ -60,7 +60,7 @@ public class BatchConfig {
     @Bean
     @StepScope
     public MultiResourceItemReader<DocumentCreateFieldDTO> multiResourceItemReaderNew(
-            @Value("${folderForDocument}") String path,
+            @Value("${folderForDocument:D:/Projects/DocumentService/DocumentService/DocumentDirectory/}") String path,
             FlatFileItemReader<DocumentCreateFieldDTO> fileItemReader) {
         var resources = getResources(path);
         MultiResourceItemReader<DocumentCreateFieldDTO> reader = new MultiResourceItemReader<>(fileItemReader);
@@ -97,7 +97,7 @@ public class BatchConfig {
     @Bean
     @StepScope
     public MultiResourceItemWriter<DocumentCreateFieldDTO> multiResourceItemWriterNew(
-            @Value("${folderForDocumentResult}") String outputDir,
+            @Value("${folderForDocumentResult:D:/Projects/DocumentService/DocumentService/DocumentDirectory/result/result.txt}") String outputDir,
             FlatFileItemWriter<DocumentCreateFieldDTO> fileItemWriter) {
 
         MultiResourceItemWriter<DocumentCreateFieldDTO> writer = new MultiResourceItemWriter<>(fileItemWriter);

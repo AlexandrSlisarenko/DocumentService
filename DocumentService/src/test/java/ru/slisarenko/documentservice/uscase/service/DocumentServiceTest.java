@@ -1,6 +1,8 @@
 package ru.slisarenko.documentservice.uscase.service;
 
 
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ class DocumentServiceTest {
 
     @Autowired
     private DocumentPersistentService documentService;
+
+    @Autowired
+    private List<UUID> generateDocumentsTestData;
 
     @Test
     void save_NotNullDocument_ReturnSavingDocument() {
@@ -58,6 +63,13 @@ class DocumentServiceTest {
                 .build();
         Assertions.assertThrows(EmptyAndLengthException.class,
                 () -> this.documentService.createNewDocument(documentFields));
+    }
+
+    @Test
+    void getListId_fiveDocuments_ReturnListOfDocumentsSizeFive() {
+        var size = generateDocumentsTestData.size();
+        var list = this.documentService.getDocumentsIdByStatus(Status.DRAFT, 2);
+        Assertions.assertEquals(5, list.size());
     }
 
 }
