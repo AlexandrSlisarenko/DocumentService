@@ -10,7 +10,10 @@ public enum ErrorCode {
     SavingData(002, "Error when saving data to the database"),
     DocumentNotFound(003, "Document not found in db."),
     HistoryElementNotFound(004, "History element not found"),
-    DocumentIsApproved(005, "The document has already been approved.");
+    DocumentIsApproved(005, "The document has already been approved."),
+    DocumentFormat(006, "name document:author document:text document"),
+    DocumentNotReadable(007, "Resource is not readable: "),
+    DocumentErrorRead(007, "ErrorRead: ");
 
     private final Integer code;
     private final String message;

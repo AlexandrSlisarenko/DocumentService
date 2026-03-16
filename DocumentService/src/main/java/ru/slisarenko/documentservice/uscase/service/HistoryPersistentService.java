@@ -25,7 +25,7 @@ public class HistoryPersistentService {
         try {
             var historyIdFormDB = this.historyRepository.save(historyEntity).getId();
             return this.historyRepository.findById(historyIdFormDB)
-                                                        .orElseThrow(HistoryElementNotFoundException::new);
+                                                        .orElseThrow(() -> new HistoryElementNotFoundException("History id = " + historyIdFormDB));
         } catch (Exception e) {
             throw new ErrorSavingDataException(e.getMessage());
         }
@@ -66,5 +66,13 @@ public class HistoryPersistentService {
 
     public List<HistoryEntity> getAllHistoryByUuid(UUID uuidDoc) {
         return this.historyRepository.findAllByUuidOrderByChangeTimeAsc(uuidDoc);
+    }
+
+    public int deleteBatch(List<UUID> deleteHistoryDocuments) {
+        return this.historyRepository.deleteAllByUuidInBatch(deleteHistoryDocuments);
+    }
+
+    public boolean existsActualHistory(UUID uidDoc, Status status) {
+        return this.historyRepository.existsByUuidAndStatus(uidDoc, status);
     }
 }

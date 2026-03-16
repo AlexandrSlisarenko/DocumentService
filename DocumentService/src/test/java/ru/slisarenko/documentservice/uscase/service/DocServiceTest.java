@@ -22,7 +22,7 @@ import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATER;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFUING;
 
@@ -42,14 +42,14 @@ class DocServiceTest {
         Assertions.assertNotNull(history.getId());
         Assertions.assertNotNull(history.getUuid());
         Assertions.assertNotNull(history.getChangeTime());
-        assertEquals(USER_CREATER, history.getAuthorChang());
+        assertEquals(USER_TESTER, history.getAuthorChang());
         assertEquals(Status.DRAFT, history.getStatus());
         assertEquals(Command.Create, history.getCommand());
     }
 
     private HistoryEntity getHistoryNewDocument() {
         var documentFields = DocumentFieldDTO.builder()
-                .author(USER_CREATER)
+                .author(USER_TESTER)
                 .name("name123")
                 .build();
 
@@ -60,7 +60,7 @@ class DocServiceTest {
     void updateDocument_happyPath_ReturnHistory() {
         var history  = getHistoryNewDocument();
         var document = this.documentService.getDocumentByUUID(history.getUuid());
-        var newHistory = this.documentService.submittedDocument(document.getUuid(), USER_TESTER, "документ проверен");
+        var newHistory = this.documentService.sendToApproval(document.getUuid(), USER_APPROVER, "документ проверен");
         Assertions.assertNotNull(newHistory);
         assertEquals(history.getUuid(), newHistory.getUuid());
     }
@@ -70,7 +70,7 @@ class DocServiceTest {
         var historyDRAFT  = getHistoryNewDocument();
         assertEquals(Status.DRAFT, historyDRAFT.getStatus());
         var document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-        var historySUBMITTED = this.documentService.submittedDocument(document.getUuid(), USER_TESTER, "документ проверен");
+        var historySUBMITTED = this.documentService.sendToApproval(document.getUuid(), USER_APPROVER, "документ проверен");
         assertEquals(Status.SUBMITTED, historySUBMITTED.getStatus());
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
         var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
@@ -96,7 +96,7 @@ class DocServiceTest {
         assertNotNull(result);
     }
 
-    private @NotNull List<UUID> generateDocumentsTestData(int coundDoc) {
+    public @NotNull List<UUID> generateDocumentsTestData(int coundDoc) {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         List<Future<List<UUID>>> futures = new ArrayList<>();
 
@@ -123,7 +123,7 @@ class DocServiceTest {
     private UUID generateDocumentData(){
         var historyDRAFT  = getHistoryNewDocument();
         var document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-        var historySUBMITTED = this.documentService.submittedDocument(document.getUuid(), USER_TESTER, "документ проверен");
+        var historySUBMITTED = this.documentService.sendToApproval(document.getUuid(), USER_TESTER, "документ проверен");
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
         var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
         return historyAPPROVED.getUuid();
