@@ -11,6 +11,7 @@ import ru.slisarenko.documentservice.config.BatchConfig;
 import ru.slisarenko.documentservice.config.GeneratorTestData;
 import ru.slisarenko.documentservice.config.MyTestContainer;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.enums.StatusBatchProcessing;
 import ru.slisarenko.documentservice.uscase.dto.BatchProcessingItem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,6 +24,7 @@ class BatchDocumentProcessingServiceTest {
 
     @Autowired
     private BatchDocumentProcessingService batchDocumentProcessingService;
+
 
     @Autowired
     private GeneratorTestData generatorTestData;
@@ -56,9 +58,25 @@ class BatchDocumentProcessingServiceTest {
     }
 
     @Test
-    void sendForApprovedDocument_ErrorPath_ReturnProcessingResult() {
+    void sendForApprovedDocument_DeletedThreeDocumentAndTwoHistory_ReturnProcessingResultNotFoundAndConflict() {
         var list = generatorTestData.generateDocumentsTestData(10, Status.DRAFT.toString());
+        var deleteDocuments = list.subList(2,4);
+        var countDelete = this.batchDocumentProcessingService.deleteDocuments(deleteDocuments);
+        assertEquals(2, countDelete);
 
+        var deleteHistoryDocuments = list.subList(5,8);
+        var countDeleteHistory = this.batchDocumentProcessingService.deleteHistoryDocuments(deleteHistoryDocuments);
+        assertEquals(3, countDeleteHistory);
+
+        List<BatchProcessingItem> listProcessItemResult = this.batchDocumentProcessingService.getBatchDocument(list);
+        var countNotFoundResult = listProcessItemResult.stream()
+                .filter(item -> item.statusBatchProcessing().equals(StatusBatchProcessing.NOT_FOUND))
+                .count();
+        assertEquals(2, countNotFoundResult);
+        var countConflictResult = listProcessItemResult.stream()
+                .filter(item -> item.statusBatchProcessing().equals(StatusBatchProcessing.CONFLICT))
+                .count();
+        assertEquals(3, countConflictResult);
     }
 
 }

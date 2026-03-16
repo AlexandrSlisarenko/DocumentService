@@ -3,8 +3,8 @@ package ru.slisarenko.documentservice.uscase.exception;
 import static ru.slisarenko.documentservice.enums.ErrorCode.HistoryElementNotFound;
 
 public class HistoryElementNotFoundException extends RuntimeException {
-    public HistoryElementNotFoundException()
+    public HistoryElementNotFoundException(String message)
     {
-        super(HistoryElementNotFound.getCode() + ":" + HistoryElementNotFound.getMessage());
+        super(HistoryElementNotFound.getCode() + ":" + HistoryElementNotFound.getMessage() + " => " + message);
     }
 }

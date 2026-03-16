@@ -8,15 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 import ru.slisarenko.documentservice.uscase.service.DocService;
 
-import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATER;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFUING;
 
@@ -61,10 +59,10 @@ public class GeneratorTestData {
                 return historyDRAFT.getUuid();
             case "SUBMITTED":
                 document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-                return this.documentService.submittedDocument(document.getUuid(), USER_TESTER, "документ проверен").getUuid();
+                return this.documentService.sendToApproval(document.getUuid(), USER_TESTER, "документ проверен").getUuid();
             case "APPROVED":
                 document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-                var historySUBMITTED = this.documentService.submittedDocument(document.getUuid(), USER_TESTER, "документ проверен");
+                var historySUBMITTED = this.documentService.sendToApproval(document.getUuid(), USER_TESTER, "документ проверен");
                 document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
                 return this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр").getUuid();
                 default:
@@ -74,7 +72,7 @@ public class GeneratorTestData {
 
     private HistoryEntity getHistoryNewDocument() {
         var documentFields = DocumentFieldDTO.builder()
-                .author(USER_CREATER)
+                .author(USER_APPROVER)
                 .name("name123")
                 .build();
 

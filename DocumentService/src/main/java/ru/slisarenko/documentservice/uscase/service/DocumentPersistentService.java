@@ -73,4 +73,15 @@ public class DocumentPersistentService {
     }
 
 
+    public int deleteDocuments(List<UUID> uuids) {
+        try {
+            return this.documentRepository.deleteAllByUuidBatch(uuids);
+        }catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public boolean existsDocument(UUID uuid) {
+        return this.documentRepository.existsByUuid(uuid);
+    }
 }

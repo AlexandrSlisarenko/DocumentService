@@ -12,8 +12,9 @@ import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 import ru.slisarenko.documentservice.uscase.dto.DocumentWithHistoryDTO;
+import ru.slisarenko.documentservice.uscase.exception.HistoryElementNotFoundException;
 
-import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATER;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATOR;
 
 @Service
 @RequiredArgsConstructor
@@ -28,18 +29,22 @@ public class DocService {
 
     public HistoryEntity createDocument(DocumentFieldDTO documentFieldDTO, String comment) {
         var document = this.documentPersistentService.createNewDocument(documentFieldDTO);
-        return this.historyPersistentService.saveHistoryDocument(document, USER_CREATER, Command.Create, comment);
+        return this.historyPersistentService.saveHistoryDocument(document, USER_CREATOR, Command.Create, comment);
     }
-
-
 
     public DocumentEntity getDocumentByUUID(UUID uuid) {
         return this.documentPersistentService.getDocumentByUUID(uuid);
     }
 
-    public HistoryEntity submittedDocument(UUID documentUuid, String userName, String comment) {
-        var document = this.documentPersistentService.updateDocument(documentUuid, Status.SUBMITTED);
-        return this.historyPersistentService.saveHistoryDocument(document, userName, Command.Update, comment);
+    public HistoryEntity sendToApproval(UUID documentUuid, String userName, String comment) {
+        var actualHistoryExists = this.historyPersistentService.existsActualHistory(documentUuid, Status.DRAFT);
+        if(actualHistoryExists){
+            var document = this.documentPersistentService.updateDocument(documentUuid, Status.SUBMITTED);
+            return this.historyPersistentService.saveHistoryDocument(document, userName, Command.Update, comment);
+        } else {
+            throw new HistoryElementNotFoundException("Uuid = " + documentUuid + ", status = " + Status.DRAFT);
+        }
+
     }
 
     public HistoryEntity approvedDocument(UUID documentUUID, String userName, String comment) {
@@ -75,5 +80,18 @@ public class DocService {
 
     public DocumentDataEntity saveDocumentData(UUID id,  String text) {
         return this.documentDataService.save(id, text);
+    }
+
+
+    public int deleteDocuments(List<UUID> deleteList) {
+        return this.documentPersistentService.deleteDocuments(deleteList);
+    }
+
+    public int deleteHistoryDocuments(List<UUID> deleteHistoryDocuments) {
+        return this.historyPersistentService.deleteBatch(deleteHistoryDocuments);
+    }
+
+    public boolean existsByUUID(UUID uuid) {
+        return this.documentPersistentService.existsDocument(uuid);
     }
 }

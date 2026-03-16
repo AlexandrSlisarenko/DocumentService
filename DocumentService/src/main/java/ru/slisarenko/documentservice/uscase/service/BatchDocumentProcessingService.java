@@ -22,10 +22,10 @@ import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.StatusBatchProcessing;
-import ru.slisarenko.documentservice.persist.model.DocumentEntity;
-import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.BatchProcessingItem;
 import ru.slisarenko.documentservice.uscase.exception.DocumentNotFoundException;
+
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
 
 @Slf4j
 @Service
@@ -89,10 +89,9 @@ public class BatchDocumentProcessingService {
                 List<BatchProcessingItem> response = new ArrayList<>();
                 for (Object o : chunk) {
                     var uuid = (UUID) o;
-                    var doc = getDocument(uuid);
-                    if (doc.getUuid() != null) {
-                        var history = getHistoryUpdate(doc);
-                        var item = (history.getUuid() != null) ?
+                    if (existsDocument(uuid)) {
+                        var history = approvalDocument(uuid, USER_APPROVER);
+                        var item = (history) ?
                                 getBatchProcessingItem(uuid, StatusBatchProcessing.SUCCESSFULLY) :
                                 getBatchProcessingItem(uuid, StatusBatchProcessing.CONFLICT);
                         response.add(item);
@@ -106,25 +105,34 @@ public class BatchDocumentProcessingService {
         }
     }
 
-    private DocumentEntity getDocument(UUID uuid) {
+    private boolean existsDocument(UUID uuid) {
         try {
-            return docService.getDocumentByUUID(uuid);
+            return docService.existsByUUID(uuid);
         } catch (DocumentNotFoundException e) {
-            return DocumentEntity.builder().build();
+            return false;
         }
     }
 
-    private HistoryEntity getHistoryUpdate(DocumentEntity doc) {
+    private boolean approvalDocument(UUID uuidDoc, String approver) {
         try {
-            return docService.submittedDocument(doc.getUuid(), doc.getAuthor(), "Package processing");
+            docService.sendToApproval(uuidDoc, approver, "Package processing");
+            return true;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return HistoryEntity.builder().build();
+            return false;
         }
     }
 
     private BatchProcessingItem getBatchProcessingItem(UUID uuid, StatusBatchProcessing statusBatchProcessing) {
         return BatchProcessingItem.builder().id(uuid).statusBatchProcessing(statusBatchProcessing).build();
+    }
+
+    public int deleteDocuments(List<UUID> deleteList) {
+        return this.docService.deleteDocuments(deleteList);
+    }
+
+    public int deleteHistoryDocuments(List<UUID> deleteHistoryDocuments) {
+        return this.docService.deleteHistoryDocuments(deleteHistoryDocuments);
     }
 }
 
