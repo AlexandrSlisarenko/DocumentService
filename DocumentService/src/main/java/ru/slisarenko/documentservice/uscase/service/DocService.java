@@ -36,7 +36,7 @@ public class DocService {
         return this.documentPersistentService.getDocumentByUUID(uuid);
     }
 
-    public HistoryEntity sendToApproval(UUID documentUuid, String userName, String comment) {
+    public HistoryEntity sendToSubmitted(UUID documentUuid, String userName, String comment) {
         var actualHistoryExists = this.historyPersistentService.existsActualHistory(documentUuid, Status.DRAFT);
         if(actualHistoryExists){
             var document = this.documentPersistentService.updateDocument(documentUuid, Status.SUBMITTED);

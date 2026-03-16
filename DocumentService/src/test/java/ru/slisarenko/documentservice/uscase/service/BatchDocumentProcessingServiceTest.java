@@ -58,7 +58,7 @@ class BatchDocumentProcessingServiceTest {
     }
 
     @Test
-    void sendForApprovedDocument_DeletedThreeDocumentAndTwoHistory_ReturnProcessingResultNotFoundAndConflict() {
+    void sendForSubmittedDocument_DeletedThreeDocumentAndTwoHistory_ReturnProcessingResultNotFoundAndConflict() {
         var list = generatorTestData.generateDocumentsTestData(10, Status.DRAFT.toString());
         var deleteDocuments = list.subList(2,4);
         var countDelete = this.batchDocumentProcessingService.deleteDocuments(deleteDocuments);

@@ -90,7 +90,7 @@ public class BatchDocumentProcessingService {
                 for (Object o : chunk) {
                     var uuid = (UUID) o;
                     if (existsDocument(uuid)) {
-                        var history = approvalDocument(uuid, USER_APPROVER);
+                        var history = submittedDocument(uuid, USER_APPROVER);
                         var item = (history) ?
                                 getBatchProcessingItem(uuid, StatusBatchProcessing.SUCCESSFULLY) :
                                 getBatchProcessingItem(uuid, StatusBatchProcessing.CONFLICT);
@@ -113,9 +113,9 @@ public class BatchDocumentProcessingService {
         }
     }
 
-    private boolean approvalDocument(UUID uuidDoc, String approver) {
+    private boolean submittedDocument(UUID uuidDoc, String approver) {
         try {
-            docService.sendToApproval(uuidDoc, approver, "Package processing");
+            docService.sendToSubmitted(uuidDoc, approver, "Package processing");
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());

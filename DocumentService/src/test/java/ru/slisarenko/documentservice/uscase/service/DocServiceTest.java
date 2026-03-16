@@ -60,7 +60,7 @@ class DocServiceTest {
     void updateDocument_happyPath_ReturnHistory() {
         var history  = getHistoryNewDocument();
         var document = this.documentService.getDocumentByUUID(history.getUuid());
-        var newHistory = this.documentService.sendToApproval(document.getUuid(), USER_APPROVER, "документ проверен");
+        var newHistory = this.documentService.sendToSubmitted(document.getUuid(), USER_APPROVER, "документ проверен");
         Assertions.assertNotNull(newHistory);
         assertEquals(history.getUuid(), newHistory.getUuid());
     }
@@ -70,7 +70,7 @@ class DocServiceTest {
         var historyDRAFT  = getHistoryNewDocument();
         assertEquals(Status.DRAFT, historyDRAFT.getStatus());
         var document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-        var historySUBMITTED = this.documentService.sendToApproval(document.getUuid(), USER_APPROVER, "документ проверен");
+        var historySUBMITTED = this.documentService.sendToSubmitted(document.getUuid(), USER_APPROVER, "документ проверен");
         assertEquals(Status.SUBMITTED, historySUBMITTED.getStatus());
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
         var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
@@ -123,7 +123,7 @@ class DocServiceTest {
     private UUID generateDocumentData(){
         var historyDRAFT  = getHistoryNewDocument();
         var document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-        var historySUBMITTED = this.documentService.sendToApproval(document.getUuid(), USER_TESTER, "документ проверен");
+        var historySUBMITTED = this.documentService.sendToSubmitted(document.getUuid(), USER_TESTER, "документ проверен");
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
         var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
         return historyAPPROVED.getUuid();
