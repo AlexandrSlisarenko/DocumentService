@@ -59,10 +59,10 @@ public class GeneratorTestData {
                 return historyDRAFT.getUuid();
             case "SUBMITTED":
                 document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-                return this.documentService.sendToApproval(document.getUuid(), USER_TESTER, "документ проверен").getUuid();
+                return this.documentService.sendToSubmitted(document.getUuid(), USER_TESTER, "документ проверен").getUuid();
             case "APPROVED":
                 document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
-                var historySUBMITTED = this.documentService.sendToApproval(document.getUuid(), USER_TESTER, "документ проверен");
+                var historySUBMITTED = this.documentService.sendToSubmitted(document.getUuid(), USER_TESTER, "документ проверен");
                 document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
                 return this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр").getUuid();
                 default:
