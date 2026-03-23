@@ -53,7 +53,7 @@ class BatchDocumentProcessingServiceTest {
     @Test
     void getDocument_1000Id_Return1000Documents() {
         var list = generatorTestData.generateDocumentsTestData(1000, Status.DRAFT.toString());
-        List<BatchProcessingItem> listDoc = this.batchDocumentProcessingService.getBatchDocument(list);
+        List<BatchProcessingItem> listDoc = this.batchDocumentProcessingService.getBatchDocument(list,Status.SUBMITTED);
         assertEquals(1000, listDoc.size());
     }
 
@@ -68,7 +68,7 @@ class BatchDocumentProcessingServiceTest {
         var countDeleteHistory = this.batchDocumentProcessingService.deleteHistoryDocuments(deleteHistoryDocuments);
         assertEquals(3, countDeleteHistory);
 
-        List<BatchProcessingItem> listProcessItemResult = this.batchDocumentProcessingService.getBatchDocument(list);
+        List<BatchProcessingItem> listProcessItemResult = this.batchDocumentProcessingService.getBatchDocument(list, Status.SUBMITTED);
         var countNotFoundResult = listProcessItemResult.stream()
                 .filter(item -> item.statusBatchProcessing().equals(StatusBatchProcessing.NOT_FOUND))
                 .count();
@@ -79,4 +79,10 @@ class BatchDocumentProcessingServiceTest {
         assertEquals(3, countConflictResult);
     }
 
+    @Test
+    void getDocumentSubmitted_1000Id_Return1000Documents() {
+        var list = generatorTestData.generateDocumentsTestData(1000, Status.SUBMITTED.toString());
+        List<BatchProcessingItem> listDoc = this.batchDocumentProcessingService.getBatchDocument(list, Status.APPROVED);
+        assertEquals(1000, listDoc.size());
+    }
 }

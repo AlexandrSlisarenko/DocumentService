@@ -16,7 +16,7 @@ import ru.slisarenko.documentservice.uscase.service.DocService;
 
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
-import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFUING;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFYING;
 
 @Component
 public class GeneratorTestData {
@@ -64,7 +64,7 @@ public class GeneratorTestData {
                 document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
                 var historySUBMITTED = this.documentService.sendToSubmitted(document.getUuid(), USER_TESTER, "документ проверен");
                 document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
-                return this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр").getUuid();
+                return this.documentService.approvedDocument(document.getUuid(), USER_VERIFYING, "документ занесен в реестр").getUuid();
                 default:
                     return null;
         }
