@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
-import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFUING;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFYING;
 
 @SpringBootTest
 @Testcontainers
@@ -73,7 +73,7 @@ class DocServiceTest {
         var historySUBMITTED = this.documentService.sendToSubmitted(document.getUuid(), USER_APPROVER, "документ проверен");
         assertEquals(Status.SUBMITTED, historySUBMITTED.getStatus());
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
-        var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
+        var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFYING, "документ занесен в реестр");
         assertEquals(Status.APPROVED, historyAPPROVED.getStatus());
     }
 
@@ -125,7 +125,7 @@ class DocServiceTest {
         var document = this.documentService.getDocumentByUUID(historyDRAFT.getUuid());
         var historySUBMITTED = this.documentService.sendToSubmitted(document.getUuid(), USER_TESTER, "документ проверен");
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
-        var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFUING, "документ занесен в реестр");
+        var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFYING, "документ занесен в реестр");
         return historyAPPROVED.getUuid();
     }
 }
