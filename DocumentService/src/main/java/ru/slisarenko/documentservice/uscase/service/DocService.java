@@ -1,5 +1,7 @@
 package ru.slisarenko.documentservice.uscase.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +13,12 @@ import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.DocumentDataEntity;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
+import ru.slisarenko.documentservice.persist.service.DocumentDataService;
+import ru.slisarenko.documentservice.persist.service.DocumentPersistentService;
+import ru.slisarenko.documentservice.persist.service.HistoryPersistentService;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 import ru.slisarenko.documentservice.uscase.dto.DocumentWithHistoryDTO;
+import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 import ru.slisarenko.documentservice.uscase.exception.DocumentIsApprovedException;
 import ru.slisarenko.documentservice.uscase.exception.HistoryElementNotFoundException;
 
@@ -101,5 +107,20 @@ public class DocService {
 
     public boolean existsByUUID(UUID uuid) {
         return this.documentPersistentService.existsDocument(uuid);
+    }
+
+    public List<DocumentWithHistoryDTO> findDocumentsByFilter(FilterDTO filter) {
+        var result = new ArrayList<DocumentWithHistoryDTO>();
+        var documents = this.documentPersistentService.findDocumentsByFilter(filter);
+        var history = this.historyPersistentService.findDocumentUuidByFilter(filter);
+        var uuids = new HashSet<UUID>();
+        uuids.addAll(documents);
+        uuids.addAll(history);
+        return uuids.isEmpty() ? result: uuids.stream().map(uuid ->{
+            return DocumentWithHistoryDTO.builder()
+                    .document(this.documentPersistentService.getDocumentByUUID(uuid))
+                    .history(this.historyPersistentService.getAllHistoryByUuid(uuid))
+                    .build();
+        }).toList();
     }
 }

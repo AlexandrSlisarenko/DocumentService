@@ -11,11 +11,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.transaction.annotation.Transactional;
 import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 
-public interface DocumentRepository extends JpaRepository<DocumentEntity, Long> {
+public interface DocumentRepository extends JpaRepository<DocumentEntity, Long>, QueryByExampleExecutor<DocumentEntity> {
     DocumentEntity findByUuid(UUID uuid);
 
     @Query("SELECT doc FROM DocumentEntity doc WHERE doc.uuid IN :ids")

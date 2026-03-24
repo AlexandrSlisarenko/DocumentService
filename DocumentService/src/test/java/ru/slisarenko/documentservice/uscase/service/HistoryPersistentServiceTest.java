@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.slisarenko.documentservice.config.MyTestContainer;
+import ru.slisarenko.documentservice.persist.service.HistoryPersistentService;
 import ru.slisarenko.documentservice.uscase.dto.HistoryFieldDTO;
 
 @SpringBootTest

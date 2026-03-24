@@ -1,14 +1,20 @@
-package ru.slisarenko.documentservice.uscase.service;
+package ru.slisarenko.documentservice.persist.service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.mapper.FilterMapper;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.persist.repository.HistoryRepository;
+import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 import ru.slisarenko.documentservice.uscase.dto.HistoryFieldDTO;
 import ru.slisarenko.documentservice.uscase.exception.EmptyAndLengthException;
 import ru.slisarenko.documentservice.uscase.exception.ErrorSavingDataException;
@@ -19,6 +25,7 @@ import ru.slisarenko.documentservice.uscase.utils.CheckField;
 @RequiredArgsConstructor
 public class HistoryPersistentService {
     private final HistoryRepository historyRepository;
+    private final FilterMapper filterMapper;
 
     public HistoryEntity saveHistoryDocument(HistoryFieldDTO historyFieldDTO) {
         var historyEntity = createHistoryEntity(historyFieldDTO);
@@ -74,5 +81,19 @@ public class HistoryPersistentService {
 
     public boolean existsActualHistory(UUID uidDoc, Status status) {
         return this.historyRepository.existsByUuidAndStatus(uidDoc, status);
+    }
+
+    public List<UUID> findDocumentUuidByFilter(FilterDTO filter) {
+        var paramFilter = this.filterMapper.toHistoryEntity(filter);
+        var matcherHistory = ExampleMatcher.matching()
+                .withIgnoreNullValues()
+                .withIgnorePaths("id")
+                .withMatcher("authorChang", matcher -> matcher.contains().ignoreCase())
+                .withMatcher("command", matcher -> matcher.exact().ignoreCase())
+                .withMatcher("status", matcher -> matcher.exact().ignoreCase())
+                .withMatcher("comment", matcher -> matcher.contains().ignoreCase());
+        Example<HistoryEntity> example = Example.of(paramFilter, matcherHistory);
+        return this.historyRepository.findBy(example, FetchableFluentQuery::all)
+                .stream().distinct().map(HistoryEntity::getUuid).toList();
     }
 }

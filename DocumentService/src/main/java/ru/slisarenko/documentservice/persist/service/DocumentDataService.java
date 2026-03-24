@@ -1,4 +1,4 @@
-package ru.slisarenko.documentservice.uscase.service;
+package ru.slisarenko.documentservice.persist.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

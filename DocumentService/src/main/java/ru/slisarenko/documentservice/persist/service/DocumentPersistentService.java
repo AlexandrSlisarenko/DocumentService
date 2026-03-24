@@ -1,19 +1,24 @@
-package ru.slisarenko.documentservice.uscase.service;
+package ru.slisarenko.documentservice.persist.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.mapper.FilterMapper;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.repository.DocumentRepository;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
+import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 import ru.slisarenko.documentservice.uscase.exception.DocumentNotFoundException;
 import ru.slisarenko.documentservice.uscase.exception.EmptyAndLengthException;
 import ru.slisarenko.documentservice.uscase.utils.CheckField;
@@ -22,6 +27,7 @@ import ru.slisarenko.documentservice.uscase.utils.CheckField;
 @RequiredArgsConstructor
 public class DocumentPersistentService {
     private final DocumentRepository documentRepository;
+    private final FilterMapper filterMapper;
 
     public DocumentEntity createNewDocument(DocumentFieldDTO documentFields) {
         checkDocumentFiles(documentFields);
@@ -83,5 +89,18 @@ public class DocumentPersistentService {
 
     public boolean existsDocument(UUID uuid) {
         return this.documentRepository.existsByUuid(uuid);
+    }
+
+    public List<UUID> findDocumentsByFilter(FilterDTO filter) {
+        var paramFilterDocument = this.filterMapper.toDocumentEntity(filter);
+        var macher = ExampleMatcher.matching()
+                .withIgnoreNullValues()
+                .withIgnorePaths("id")
+                .withMatcher("name", matcher -> matcher.contains().ignoreCase())
+                .withMatcher("author", matcher -> matcher.exact().ignoreCase())
+                .withMatcher("status", matcher -> matcher.exact().ignoreCase());
+        Example<DocumentEntity> example = Example.of(paramFilterDocument, macher);
+        return this.documentRepository.findBy(example, FetchableFluentQuery::all)
+                .stream().map(DocumentEntity::getUuid).toList();
     }
 }

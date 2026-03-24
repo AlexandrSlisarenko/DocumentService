@@ -2,6 +2,7 @@ package ru.slisarenko.documentservice.uscase.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -19,10 +20,13 @@ import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
+import ru.slisarenko.documentservice.uscase.dto.DocumentWithHistoryDTO;
+import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATOR;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFYING;
 
@@ -127,5 +131,65 @@ class DocServiceTest {
         document = this.documentService.getDocumentByUUID(historySUBMITTED.getUuid());
         var historyAPPROVED = this.documentService.approvedDocument(document.getUuid(), USER_VERIFYING, "документ занесен в реестр");
         return historyAPPROVED.getUuid();
+    }
+
+
+    @Test
+    void getDocumentsWithHistoryByUser_Alex_ReturnDocumentsWithHistory() {
+        var countDocument = 10;
+        List<UUID> resultList = generateDocumentsTestData(countDocument);
+        resultList.forEach(uuid -> {
+            var document = this.documentService.getDocumentByUUID(uuid);
+            this.documentService.sendToSubmitted(document.getUuid(), USER_APPROVER, "документ проверен");
+        });
+        var filter = FilterDTO.builder()
+                .author(USER_TESTER)
+                .countElement(5)
+                .pageNumber(0)
+                .build();
+        List<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
+        Assertions.assertNotNull(documents);
+        Assertions.assertEquals(countDocument, documents.size());
+    }
+
+    @Test
+    void getDocumentsWithHistoryByUser_ApproverUser_CreatedDocuments_ReturnEmptyList() {
+        var countDocument = 10;
+        var random = new Random();
+        for (int i = 0; i < countDocument; i++) {
+            var documentFields = DocumentFieldDTO.builder()
+                    .author(USER_TESTER)
+                    .name("name" + random.nextInt())
+                    .build();
+
+            this.documentService.createDocument(documentFields, "тестовое сохранение");
+        }
+        var filter = FilterDTO.builder()
+                .author("Null")
+                .updateAuthor(USER_APPROVER)
+                .build();
+        List<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
+        Assertions.assertNotNull(documents);
+        Assertions.assertEquals(0, documents.size());
+    }
+
+    @Test
+    void getUpdateDocumentsByUser_TesterAndApprover_ReturnDocumentsWithHistory() {
+        var countCreateDocument = 10;
+        var countApproveDocument = 2;
+        List<UUID> resultList = generateDocumentsTestData(countCreateDocument);
+        for(int i = 0; i< countApproveDocument; i++){
+            var document = this.documentService.getDocumentByUUID(resultList.get(i));
+            this.documentService.sendToSubmitted(document.getUuid(), USER_APPROVER, "документ проверен");
+        }
+        var filter = FilterDTO.builder()
+                .author(USER_TESTER)
+                .updateAuthor(USER_APPROVER)
+                .countElement(5)
+                .pageNumber(0)
+                .build();
+        List<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
+        Assertions.assertNotNull(documents);
+        Assertions.assertEquals(countApproveDocument, documents.size());
     }
 }
