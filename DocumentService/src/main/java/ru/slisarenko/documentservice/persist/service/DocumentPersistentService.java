@@ -91,7 +91,7 @@ public class DocumentPersistentService {
         return this.documentRepository.existsByUuid(uuid);
     }
 
-    public List<UUID> findDocumentsByFilter(FilterDTO filter) {
+    public List<UUID> findDocumentsUuidByFilter(FilterDTO filter) {
         var paramFilterDocument = this.filterMapper.toDocumentEntity(filter);
         var macher = ExampleMatcher.matching()
                 .withIgnoreNullValues()

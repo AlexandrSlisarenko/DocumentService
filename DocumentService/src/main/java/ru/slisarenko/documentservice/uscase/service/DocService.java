@@ -1,11 +1,12 @@
 package ru.slisarenko.documentservice.uscase.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.slisarenko.documentservice.enums.Command;
@@ -109,18 +110,27 @@ public class DocService {
         return this.documentPersistentService.existsDocument(uuid);
     }
 
-    public List<DocumentWithHistoryDTO> findDocumentsByFilter(FilterDTO filter) {
-        var result = new ArrayList<DocumentWithHistoryDTO>();
-        var documents = this.documentPersistentService.findDocumentsByFilter(filter);
+    public Page<DocumentWithHistoryDTO> findDocumentsByFilter(FilterDTO filter) {
+
+        var documents = this.documentPersistentService.findDocumentsUuidByFilter(filter);
         var history = this.historyPersistentService.findDocumentUuidByFilter(filter);
         var uuids = new HashSet<UUID>();
         uuids.addAll(documents);
         uuids.addAll(history);
-        return uuids.isEmpty() ? result: uuids.stream().map(uuid ->{
+        return getPageDocumentWithHistoryDTO(uuids, filter.pageNumber(), filter.countElement());
+    }
+
+    private Page<DocumentWithHistoryDTO> getPageDocumentWithHistoryDTO(HashSet<UUID> uuids, int page, int count) {
+        var documents = uuids.stream().map(uuid -> {
             return DocumentWithHistoryDTO.builder()
                     .document(this.documentPersistentService.getDocumentByUUID(uuid))
                     .history(this.historyPersistentService.getAllHistoryByUuid(uuid))
                     .build();
         }).toList();
+        var result = PageRequest.of(page, count);
+        var start = (int) result.getOffset();
+        int end = Math.min((start + result.getPageSize()), documents.size());
+        var pageContent = documents.subList(start, end);
+        return new PageImpl<>(pageContent, result, documents.size());
     }
 }

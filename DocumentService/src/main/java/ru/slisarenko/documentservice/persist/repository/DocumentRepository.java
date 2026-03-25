@@ -7,6 +7,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
@@ -16,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 
-public interface DocumentRepository extends JpaRepository<DocumentEntity, Long>, QueryByExampleExecutor<DocumentEntity> {
+public interface DocumentRepository extends JpaRepository<DocumentEntity, Long>,
+                                            QueryByExampleExecutor<DocumentEntity>,
+                                            JpaSpecificationExecutor<DocumentEntity> {
     DocumentEntity findByUuid(UUID uuid);
 
     @Query("SELECT doc FROM DocumentEntity doc WHERE doc.uuid IN :ids")

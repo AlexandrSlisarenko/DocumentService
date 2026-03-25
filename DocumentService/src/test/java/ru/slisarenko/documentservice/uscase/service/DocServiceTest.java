@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.slisarenko.documentservice.config.MyTestContainer;
 import ru.slisarenko.documentservice.enums.Command;
@@ -26,7 +27,6 @@ import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
-import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATOR;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFYING;
 
@@ -147,9 +147,9 @@ class DocServiceTest {
                 .countElement(5)
                 .pageNumber(0)
                 .build();
-        List<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
+        Page<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
         Assertions.assertNotNull(documents);
-        Assertions.assertEquals(countDocument, documents.size());
+        Assertions.assertEquals(countDocument, documents.getTotalElements());
     }
 
     @Test
@@ -165,12 +165,11 @@ class DocServiceTest {
             this.documentService.createDocument(documentFields, "тестовое сохранение");
         }
         var filter = FilterDTO.builder()
-                .author("Null")
                 .updateAuthor(USER_APPROVER)
                 .build();
-        List<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
+        Page<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
         Assertions.assertNotNull(documents);
-        Assertions.assertEquals(0, documents.size());
+        Assertions.assertEquals(0, documents.getTotalElements());
     }
 
     @Test
@@ -188,8 +187,8 @@ class DocServiceTest {
                 .countElement(5)
                 .pageNumber(0)
                 .build();
-        List<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
+        Page<DocumentWithHistoryDTO> documents = this.documentService.findDocumentsByFilter(filter);
         Assertions.assertNotNull(documents);
-        Assertions.assertEquals(countApproveDocument, documents.size());
+        Assertions.assertEquals(countApproveDocument, documents.getTotalElements());
     }
 }
