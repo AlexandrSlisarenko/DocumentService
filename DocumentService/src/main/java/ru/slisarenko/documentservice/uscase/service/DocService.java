@@ -1,7 +1,9 @@
 package ru.slisarenko.documentservice.uscase.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -133,4 +135,39 @@ public class DocService {
         var pageContent = documents.subList(start, end);
         return new PageImpl<>(pageContent, result, documents.size());
     }
+
+    public Page<DocumentWithHistoryDTO> findDocumentsBySpecificationFilter(FilterDTO filter) {
+        var result = PageRequest.of(filter.pageNumber(), filter.countElement());
+        var content = new ArrayList<DocumentWithHistoryDTO>();
+
+        var documents = this.documentPersistentService.searchDocumentsBySpecification(filter);
+        var history = this.historyPersistentService.searchDocumentsHistoryBySpecification(filter);
+
+        var documentUuidInHistory = getDocumentsUuid(documents, history);
+        for (UUID uuid : documentUuidInHistory) {
+            var historyElements = history.stream().filter(f -> f.getUuid().equals(uuid)).toList();
+            var doc = documents.stream()
+                    .filter(f -> f.getUuid().equals(uuid))
+                    .findFirst()
+                    .orElse(DocumentEntity.builder().build());
+            content.add(DocumentWithHistoryDTO.builder()
+                    .history(historyElements)
+                    .document(doc)
+                    .build());
+            documents.remove(doc);
+            history.removeIf(f -> f.getUuid().equals(uuid));
+        }
+        documents.forEach(element -> content.add(getDocumentWithHistory(element.getUuid())));
+        history.forEach(element -> content.add(getDocumentWithHistory(element.getUuid())));
+        return new PageImpl<>(content, result, documents.size());
+    }
+
+    private Set<UUID> getDocumentsUuid(List<DocumentEntity>listDocuments, List<HistoryEntity>listHistory) {
+        var uuids = new HashSet<UUID>();
+        listDocuments.forEach(d -> uuids.add(d.getUuid()));
+        listHistory.forEach(h -> uuids.add(h.getUuid()));
+        return uuids;
+    }
+
+
 }

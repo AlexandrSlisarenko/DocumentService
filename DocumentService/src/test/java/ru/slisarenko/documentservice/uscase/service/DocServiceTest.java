@@ -19,6 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.slisarenko.documentservice.config.MyTestContainer;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
 import ru.slisarenko.documentservice.uscase.dto.DocumentFieldDTO;
 import ru.slisarenko.documentservice.uscase.dto.DocumentWithHistoryDTO;
@@ -27,6 +28,7 @@ import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_APPROVER;
+import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_CREATOR;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_TESTER;
 import static ru.slisarenko.documentservice.uscase.utils.Constants.USER_VERIFYING;
 
@@ -52,12 +54,19 @@ class DocServiceTest {
     }
 
     private HistoryEntity getHistoryNewDocument() {
+
         var documentFields = DocumentFieldDTO.builder()
                 .author(USER_TESTER)
                 .name("name123")
                 .build();
 
         return this.documentService.createDocument(documentFields, "тестовое сохранение");
+    }
+
+    private void createNewDocument(int count) {
+        for (int i = 0; i < count; i++) {
+            getHistoryNewDocument();
+        }
     }
 
     @Test
@@ -191,4 +200,34 @@ class DocServiceTest {
         Assertions.assertNotNull(documents);
         Assertions.assertEquals(countApproveDocument, documents.getTotalElements());
     }
+
+    @Test
+    void findDocumentsBySpecificationFilter_Name_ReturnDocumentsWithoutHistory() {
+
+    }
+
+    @Test
+    void findDocumentsBySpecificationFilter_NameAndAuthor_ReturnDocumentsWithHistory() {
+        createNewDocument(2);
+        var filterDoc = FilterDTO.builder()
+                .nameDocument("name123")
+                .author(USER_TESTER)
+                .countElement(5)
+                .pageNumber(0)
+                .build();
+        var document = this.documentService.findDocumentsBySpecificationFilter(filterDoc);
+        Assertions.assertNotNull(document);
+        var filterHistory = FilterDTO.builder()
+                .updateAuthor(USER_CREATOR)
+                .countElement(4)
+                .pageNumber(0)
+                .build();
+        var history = this.documentService.findDocumentsBySpecificationFilter(filterHistory);
+        Assertions.assertNotNull(history);
+        var docUuids = document.stream().map(DocumentWithHistoryDTO::document).map(DocumentEntity::getUuid).toList();
+        var historyUuids = history.stream().map(DocumentWithHistoryDTO::document).map(DocumentEntity::getUuid).toList();
+        Assertions.assertEquals(docUuids, historyUuids);
+
+    }
 }
+

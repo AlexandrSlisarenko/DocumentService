@@ -2,14 +2,15 @@ package ru.slisarenko.documentservice.persist.service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.filter.HistorySpecification;
 import ru.slisarenko.documentservice.persist.mapper.FilterMapper;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.model.HistoryEntity;
@@ -95,5 +96,11 @@ public class HistoryPersistentService {
         Example<HistoryEntity> example = Example.of(paramFilter, matcherHistory);
         return this.historyRepository.findBy(example, FetchableFluentQuery::all)
                 .stream().distinct().map(HistoryEntity::getUuid).toList();
+    }
+
+    public List<HistoryEntity> searchDocumentsHistoryBySpecification(FilterDTO criteria) {
+        Specification<HistoryEntity> spec = Specification.where(HistorySpecification.filterHistoryDocumentsByAllParam(criteria)); // начальная спецификация
+
+        return historyRepository.findAll(spec);
     }
 }

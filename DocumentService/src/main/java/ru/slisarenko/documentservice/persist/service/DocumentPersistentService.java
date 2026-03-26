@@ -11,9 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.stereotype.Service;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.persist.filter.DocumentSpecification;
 import ru.slisarenko.documentservice.persist.mapper.FilterMapper;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
 import ru.slisarenko.documentservice.persist.repository.DocumentRepository;
@@ -102,5 +104,11 @@ public class DocumentPersistentService {
         Example<DocumentEntity> example = Example.of(paramFilterDocument, macher);
         return this.documentRepository.findBy(example, FetchableFluentQuery::all)
                 .stream().map(DocumentEntity::getUuid).toList();
+    }
+
+    public List<DocumentEntity> searchDocumentsBySpecification(FilterDTO criteria) {
+        Specification<DocumentEntity> spec = Specification.where(DocumentSpecification.filterDocumentsByAllParam(criteria));
+
+        return documentRepository.findAll(spec);
     }
 }
