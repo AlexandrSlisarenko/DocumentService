@@ -2,10 +2,9 @@ package ru.slisarenko.documentservice.persist.filter;
 
 import java.time.LocalDateTime;
 import org.springframework.data.jpa.domain.Specification;
-import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
 import ru.slisarenko.documentservice.persist.model.DocumentEntity;
-import ru.slisarenko.documentservice.persist.model.HistoryEntity;
+import ru.slisarenko.documentservice.persist.model.DocumentEntity_;
 import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 
 public class DocumentSpecification {
@@ -13,9 +12,9 @@ public class DocumentSpecification {
     public static Specification<DocumentEntity> filterCreateDocumentBetween(LocalDateTime from, LocalDateTime to) {
         return (root, query, cb) -> {
             if ( from == null && to == null) return cb.conjunction();
-            if (from == null) return cb.lessThanOrEqualTo(root.get("changeTime"), to);
-            if (to == null) return cb.greaterThanOrEqualTo(root.get("changeTime"), from);
-            return cb.between(root.get("birthDate"), from, to);
+            if (from == null) return cb.lessThanOrEqualTo(root.get(DocumentEntity_.CHANGE_TIME), to);
+            if (to == null) return cb.greaterThanOrEqualTo(root.get(DocumentEntity_.CHANGE_TIME), from);
+            return cb.between(root.get(DocumentEntity_.CHANGE_TIME), from, to);
         };
     }
 
@@ -24,14 +23,14 @@ public class DocumentSpecification {
     public static Specification<DocumentEntity> filterEqualsNameDocument(String name) {
         return (root, query, cb) -> {
             return name == null ? cb.conjunction()
-                    : cb.equal(root.get("name"), name);
+                    : cb.equal(root.get(DocumentEntity_.NAME), name);
         };
     }
 
     public static Specification<DocumentEntity> filterEqualsAuthorDocument(String author) {
         return (root, query, cb) -> {
             return author == null ? cb.conjunction()
-                    : cb.equal(root.get("author"), author);
+                    : cb.equal(root.get(DocumentEntity_.AUTHOR), author);
         };
     }
 
@@ -40,7 +39,7 @@ public class DocumentSpecification {
     public static Specification<DocumentEntity> filterEqualsStatuesDocument(Status status) {
         return (root, query, cb) -> {
             return status == null ? cb.conjunction()
-                    : cb.equal(root.get("status"), status);
+                    : cb.equal(root.get(DocumentEntity_.STATUS), status);
         };
     }
 

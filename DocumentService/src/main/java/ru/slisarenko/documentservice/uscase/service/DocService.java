@@ -145,20 +145,18 @@ public class DocService {
 
         var documentUuidInHistory = getDocumentsUuid(documents, history);
         for (UUID uuid : documentUuidInHistory) {
-            var historyElements = history.stream().filter(f -> f.getUuid().equals(uuid)).toList();
+            var historyElements = !history.isEmpty() ?
+                    history.stream().filter(f -> f.getUuid().equals(uuid)).toList() :
+                    this.historyPersistentService.getAllHistoryByUuid(uuid);
             var doc = documents.stream()
                     .filter(f -> f.getUuid().equals(uuid))
                     .findFirst()
-                    .orElse(DocumentEntity.builder().build());
+                    .orElse(documentPersistentService.getDocumentByUUID(uuid));
             content.add(DocumentWithHistoryDTO.builder()
                     .history(historyElements)
                     .document(doc)
                     .build());
-            documents.remove(doc);
-            history.removeIf(f -> f.getUuid().equals(uuid));
         }
-        documents.forEach(element -> content.add(getDocumentWithHistory(element.getUuid())));
-        history.forEach(element -> content.add(getDocumentWithHistory(element.getUuid())));
         return new PageImpl<>(content, result, documents.size());
     }
 

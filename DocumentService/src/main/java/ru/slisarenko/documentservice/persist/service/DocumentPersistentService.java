@@ -1,6 +1,7 @@
 package ru.slisarenko.documentservice.persist.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,8 @@ import ru.slisarenko.documentservice.uscase.exception.DocumentNotFoundException;
 import ru.slisarenko.documentservice.uscase.exception.EmptyAndLengthException;
 import ru.slisarenko.documentservice.uscase.utils.CheckField;
 
+import static ru.slisarenko.documentservice.uscase.utils.CheckField.checkFilterDocumentEmpty;
+
 @Service
 @RequiredArgsConstructor
 public class DocumentPersistentService {
@@ -41,8 +44,8 @@ public class DocumentPersistentService {
     public DocumentEntity getDocumentByUUID(UUID uuid) {
         try {
             return this.documentRepository.findByUuid(uuid);
-        }catch (Exception e) {
-            throw new DocumentNotFoundException(" Id = " + uuid.toString() + " "+ e.getMessage());
+        } catch (Exception e) {
+            throw new DocumentNotFoundException(" Id = " + uuid.toString() + " " + e.getMessage());
         }
     }
 
@@ -55,13 +58,13 @@ public class DocumentPersistentService {
     }
 
     public List<UUID> getDocumentsIdByStatus(Status status, int size) {
-        var limit  = Limit.of(size);
+        var limit = Limit.of(size);
         return this.documentRepository.findUuidListByStatus(status, limit);
     }
 
     public Page<DocumentEntity> getDocuments(List<UUID> uuids, int page, int size, String sort, String ascDesc) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(ascDesc), sort));
-        return this.documentRepository.findDocumentEntitiesByIds(uuids,pageable);
+        return this.documentRepository.findDocumentEntitiesByIds(uuids, pageable);
     }
 
     private DocumentEntity createDocumentEntity(DocumentFieldDTO fields) {
@@ -84,7 +87,7 @@ public class DocumentPersistentService {
     public int deleteDocuments(List<UUID> uuids) {
         try {
             return this.documentRepository.deleteAllByUuidBatch(uuids);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -107,7 +110,12 @@ public class DocumentPersistentService {
     }
 
     public List<DocumentEntity> searchDocumentsBySpecification(FilterDTO criteria) {
-        Specification<DocumentEntity> spec = Specification.where(DocumentSpecification.filterDocumentsByAllParam(criteria));
+        if (checkFilterDocumentEmpty(criteria)) {
+            return new ArrayList<>();
+        }
+
+        Specification<DocumentEntity> spec = Specification.where(
+                DocumentSpecification.filterDocumentsByAllParam(criteria));
 
         return documentRepository.findAll(spec);
     }

@@ -1,5 +1,6 @@
 package ru.slisarenko.documentservice.persist.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import ru.slisarenko.documentservice.uscase.exception.EmptyAndLengthException;
 import ru.slisarenko.documentservice.uscase.exception.ErrorSavingDataException;
 import ru.slisarenko.documentservice.uscase.exception.HistoryElementNotFoundException;
 import ru.slisarenko.documentservice.uscase.utils.CheckField;
+
+import static ru.slisarenko.documentservice.uscase.utils.CheckField.checkFilterHistoryEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -99,7 +102,12 @@ public class HistoryPersistentService {
     }
 
     public List<HistoryEntity> searchDocumentsHistoryBySpecification(FilterDTO criteria) {
-        Specification<HistoryEntity> spec = Specification.where(HistorySpecification.filterHistoryDocumentsByAllParam(criteria)); // начальная спецификация
+        if (checkFilterHistoryEmpty(criteria)) {
+            return new ArrayList<>();
+        }
+
+        Specification<HistoryEntity> spec = Specification.where(
+                HistorySpecification.filterHistoryDocumentsByAllParam(criteria));
 
         return historyRepository.findAll(spec);
     }

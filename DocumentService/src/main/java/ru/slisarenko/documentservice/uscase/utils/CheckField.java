@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import ru.slisarenko.documentservice.enums.Command;
 import ru.slisarenko.documentservice.enums.Status;
+import ru.slisarenko.documentservice.uscase.dto.FilterDTO;
 
 public final class CheckField {
     private CheckField() {}
@@ -34,5 +35,22 @@ public final class CheckField {
 
     public static boolean checkEmpty(String str){
         return !str.isEmpty();
+    }
+
+    public static boolean checkFilterDocumentEmpty(FilterDTO filterDTO){
+        return filterDTO.author() == null &&
+               filterDTO.nameDocument() == null &&
+               filterDTO.statusDocument() == null &&
+               filterDTO.createTimeTo() == null &&
+               filterDTO.createTimeFrom() == null;
+    }
+
+    public static boolean checkFilterHistoryEmpty(FilterDTO filterDTO){
+        return filterDTO.updateAuthor() == null &&
+               filterDTO.statusInHistory() == null &&
+               filterDTO.updateTimeFrom() == null &&
+               filterDTO.updateTimeTo() == null &&
+               filterDTO.command() == null &&
+               filterDTO.inComment() == null;
     }
 }

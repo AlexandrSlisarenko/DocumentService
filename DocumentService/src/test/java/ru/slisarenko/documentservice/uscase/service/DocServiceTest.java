@@ -202,11 +202,6 @@ class DocServiceTest {
     }
 
     @Test
-    void findDocumentsBySpecificationFilter_Name_ReturnDocumentsWithoutHistory() {
-
-    }
-
-    @Test
     void findDocumentsBySpecificationFilter_NameAndAuthor_ReturnDocumentsWithHistory() {
         createNewDocument(2);
         var filterDoc = FilterDTO.builder()
